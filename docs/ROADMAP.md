@@ -20,7 +20,7 @@ redesign.
 | **Lazy loading** | The app boots instantly and survives missing optional deps. |
 | **Allowlist security** | The AI physically cannot run arbitrary commands. Bounded blast radius. |
 | **Local-first compute** | Voice, OCR, embeddings all local and free; only "thinking" uses cloud AI. Keeps it cheap and private. |
-| **Everything tested** | 106 tests, mocked external calls, fast suite. Refactors are safe. |
+| **Everything tested** | 161 tests, mocked external calls, fast suite. Refactors are safe. |
 | **Graceful degradation** | Missing Tesseract? Files indexed by name. Rate-limited? Failover. Mac off? Cloud answers. |
 
 ### ⚠️ Bad / weak architecture
@@ -85,7 +85,7 @@ timeline
 Telegram bot, streaming, auth · hybrid semantic file search · OCR (eng+hin) ·
 voice (Whisper) · file delivery · allowlisted commands · web search (Gemini
 grounding) · memory/aliases · reminders + system alerts + weather + backup ·
-Groq→Gemini failover · always-online cloud relay · dashboard · 106 tests.
+Groq→Gemini failover · always-online cloud relay · dashboard · 161 tests.
 
 ### v2.0 — Senses & Reach
 - **Vision:** send a photo → Gemini describes/answers (multimodal). *High value,

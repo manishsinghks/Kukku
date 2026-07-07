@@ -72,11 +72,11 @@ function Bubble({
               </span>
             )}
             {m.latency_ms != null && <span style={{ fontSize: 11, color: "var(--text-faint)" }}>{(m.latency_ms / 1000).toFixed(1)}s</span>}
-            <button className="tinyBtn" onClick={() => { navigator.clipboard.writeText(m.content); setCopied(true); setTimeout(() => setCopied(false), 1200); }}>
+            <button className="tinyBtn" aria-label={copied ? "Copied" : "Copy message"} title="Copy" onClick={() => { navigator.clipboard.writeText(m.content); setCopied(true); setTimeout(() => setCopied(false), 1200); }}>
               {copied ? <Check size={13} /> : <Copy size={13} />}
             </button>
             {ttsSupported && (
-              <button className={`tinyBtn${speaking ? " speaking" : ""}`} title={speaking ? "Stop" : "Read aloud"} onClick={onToggleSpeak}>
+              <button className={`tinyBtn${speaking ? " speaking" : ""}`} aria-label={speaking ? "Stop reading" : "Read aloud"} title={speaking ? "Stop" : "Read aloud"} onClick={onToggleSpeak}>
                 {speaking ? <Square size={12} /> : <Volume2 size={13} />}
               </button>
             )}
@@ -228,12 +228,13 @@ export default function ChatPage() {
                 fontSize: 14.5, fontFamily: "inherit", padding: "10px 12px", maxHeight: 160, lineHeight: 1.5 }}
             />
             {speech.supported && (
-              <button title={speech.listening ? "Stop" : "Speak"} className={`micBtn${speech.listening ? " rec" : ""}`}
+              <button title={speech.listening ? "Stop" : "Speak"} aria-label={speech.listening ? "Stop voice input" : "Start voice input"}
+                aria-pressed={speech.listening} className={`micBtn${speech.listening ? " rec" : ""}`}
                 onClick={() => (speech.listening ? speech.stop() : speech.start(input))}>
                 <Mic size={17} />
               </button>
             )}
-            <button onClick={send} disabled={!input.trim() || sending} className="sendBtn">
+            <button onClick={send} aria-label="Send message" disabled={!input.trim() || sending} className="sendBtn">
               {sending ? <Loader2 size={17} className="spin" /> : <Send size={17} />}
             </button>
           </div>

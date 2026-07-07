@@ -1,0 +1,22 @@
+<svg width="880" height="256" viewBox="0 0 880 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kukku">
+  <title>Kukku</title>
+  <defs>
+    <linearGradient id="lockTile" x1="0" y1="16" x2="0" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7A6BFF"/>
+      <stop offset="1" stop-color="#5B4DE0"/>
+    </linearGradient>
+  </defs>
+  <!-- Mark -->
+  <g transform="translate(16,16)">
+    <rect width="224" height="224" rx="52" fill="url(#lockTile)"/>
+    <g stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none" transform="translate(30,30) scale(0.324)">
+      <path d="M186 152 V372"/>
+      <path d="M186 262 L358 372"/>
+      <path d="M186 262 L316 186"/>
+    </g>
+    <circle cx="158" cy="66" r="12" fill="#FF9E64"/>
+  </g>
+  <!-- Wordmark (outline text in production; live text here for reference) -->
+  <text x="286" y="164" font-family="'General Sans','Inter',-apple-system,system-ui,sans-serif"
+        font-size="128" font-weight="600" letter-spacing="-4" fill="#12121A">Kukku</text>
+</svg>

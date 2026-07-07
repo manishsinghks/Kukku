@@ -1,0 +1,51 @@
+# Keep the build context small and secret-free.
+# The Dockerfile only needs requirements.txt, app/, and .env.example.
+
+# Secrets & local runtime data — must never enter the image
+.env
+.env.*
+!.env.example
+data/
+inbox/
+*.db
+*.db-wal
+*.db-shm
+*.log
+auth.json
+
+# Python virtualenv & caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Web app (not part of the backend image)
+web/
+node_modules/
+
+# Cloud worker (deployed separately)
+cloud/
+
+# Repo tooling, docs, assets, tests — not needed at runtime
+.git/
+.github/
+.claude/
+docs/
+assets/
+tests/
+scripts/
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/

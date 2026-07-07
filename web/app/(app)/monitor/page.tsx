@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Cpu, MemoryStick, HardDrive, FileStack, Sparkles, Activity, Zap } from "lucide-react";
-import { API_BASE } from "@/lib/api";
+import { apiJson } from "@/lib/api";
 
 function Ring({ pct, label }: { pct: number; label: string }) {
   const r = 30, c = 2 * Math.PI * r, hot = pct > 85;
@@ -34,7 +34,7 @@ export default function MonitorPage() {
   useEffect(() => {
     let alive = true;
     const load = async () => {
-      try { const r = await fetch(`${API_BASE}/api/status`); if (alive) setS(await r.json()); } catch {}
+      try { const d = await apiJson("/api/status"); if (alive) setS(d); } catch {}
     };
     load();
     const t = setInterval(load, 4000);

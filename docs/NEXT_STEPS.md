@@ -8,7 +8,7 @@ message below.
 
 ## 🔄 How to resume in a NEW chat
 
-Start a new Claude Code session in `~/jarvis` and send this:
+Start a new Claude Code session in `~/Kukku` and send this:
 
 > Continue the Kukku project. Read `docs/NEXT_STEPS.md`, `docs/WEB_DASHBOARD.md`,
 > and `docs/ARCHITECTURE.md` to get up to speed, then let's work on: **<the item
@@ -20,7 +20,7 @@ lost between sessions.
 
 **Fast facts a new session needs:**
 - Run backend: it's a launchd service (`launchctl list | grep jarvis`). Logs: `data/logs/jarvis.log`.
-- Run web app: `~/jarvis/scripts/web.sh` → http://localhost:3000
+- Run web app: `~/Kukku/scripts/web.sh` → http://localhost:3000
 - Tests: `./.venv/bin/pytest -q` (must stay green) · Lint: `./.venv/bin/ruff check app tests`
 - Web build check: `cd web && npm run build`
 - After a feature: commit + push to your own remote
@@ -38,7 +38,7 @@ lost between sessions.
   Universal Search, Memory, File Explorer, OCR Search, Automation (reminders),
   Developer (activity/logs), System Monitor, Notifications, Settings.
 - **One source of truth**: dashboard & Telegram share the same agent, DB, memory,
-  realtime EventBus. 140 tests pass.
+  realtime EventBus. 161 tests pass.
 
 Architecture: [WEB_DASHBOARD.md](WEB_DASHBOARD.md) · [ARCHITECTURE.md](ARCHITECTURE.md)
 Extend safely: [EXTENDING.md](EXTENDING.md)

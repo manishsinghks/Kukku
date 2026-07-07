@@ -1,143 +1,136 @@
-# 🤖 Kukku — Personal AI Assistant
+<div align="center">
 
-> A production-grade personal AI that runs 24/7 on your Mac. Talk to it on
-> **Telegram** or a premium **web dashboard** — both share one brain, one memory,
-> and one database.
+<img src="assets/brand/logo-mark.svg" width="112" height="112" alt="Kukku" />
 
-<p>
-  <img alt="Python" src="https://img.shields.io/badge/python-3.12+-blue.svg">
-  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-14-black.svg">
-  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green.svg">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-140%20passing-brightgreen.svg">
-</p>
+# Kukku
 
-Kukku finds files on your laptop (by name, content, or *meaning*), sends them to
-you, reads your screenshots with OCR, transcribes voice notes, runs allowlisted
-local commands, searches the web, sets reminders, and remembers things — in
-English, Hindi, or Hinglish.
+### Local by design. Personal by default.
+
+**A private, local-first personal AI that lives on your Mac — and answers on Telegram and a beautiful web dashboard.**
+It finds your files by *meaning*, reads your screenshots, transcribes your voice, remembers what matters, and runs on free model tiers. Your data never leaves home.
+
+<br/>
+
+[![CI](https://github.com/manishsinghks/Kukku/actions/workflows/ci.yml/badge.svg)](https://github.com/manishsinghks/Kukku/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-6A5AF9.svg?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.12+-6A5AF9.svg?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-0B0B0F.svg?style=flat-square&logo=nextdotjs)](https://nextjs.org)
+[![Local-first](https://img.shields.io/badge/data-100%25%20local-FF9E64.svg?style=flat-square)](#-faq)
+
+[**Quick Start**](#-quick-start) · [**Features**](#-why-kukku) · [**Architecture**](#-architecture) · [**Config**](#environment-variables) · [**Roadmap**](#-roadmap) · [**FAQ**](#-faq)
+
+<!-- TODO: add a hero screenshot at docs/images/hero-chat.png and uncomment:
+<br/><img src="docs/images/hero-chat.png" alt="Kukku dashboard — AI chat" width="820" />
+-->
+
+</div>
+
+---
+
+## ✨ Why Kukku
+
+> Cloud assistants can't see your files and won't keep your data private.
+> **Kukku runs on your own machine** — ask it in plain language, from your phone
+> or a local dashboard, and it works *where your files already live*.
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 🔍 Finds anything
+Semantic + keyword + OCR search across your Mac. *"the screenshot where Docker failed"* just works.
+
+</td>
+<td width="33%" valign="top">
+
+### 🧠 Remembers you
+A shared memory and conversation history across Telegram and the dashboard — your second brain.
+
+</td>
+<td width="33%" valign="top">
+
+### 🔒 Stays private
+Everything runs on `127.0.0.1`. Free model tiers, no cloud tax, fully self-hosted and open-source.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🎙 Speaks your language
+Voice notes transcribed locally; replies in English, Hindi, or Hinglish — mirroring how you wrote.
+
+</td>
+<td valign="top">
+
+### 📱 Answers anywhere
+One brain, two front doors: a Telegram bot in your pocket and a premium Next.js dashboard.
+
+</td>
+<td valign="top">
+
+### ⚡ Never gives up
+Gemini → Groq → OpenRouter failover (or fully-local Ollama), with retries and cooldowns.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗 Architecture
+
+Two clients, one brain, one database — messages sync live between both.
 
 ```
-You:   find the screenshot where docker failed
-Kukku: 🔍 Found it — Screenshot 2026-06-12 at 14.03.11.png
-       (OCR matched: "Cannot connect to the Docker daemon")
-       📎 [file attached]
+   📱 Telegram                 🖥️  Web Dashboard (Next.js · localhost:3000)
+        │                              │
+        ▼                              ▼
+ ☁️  Cloudflare relay (optional)   JWT auth · SSE chat
+        │  long-poll (outbound)        │
+        ▼                              ▼
+ 🐍  Python backend · 127.0.0.1:8788 — one source of truth
+      Agent (shared brain) · EventBus (live sync) · Scheduler · Indexer
+      LLM failover: Gemini → Groq → OpenRouter → Ollama
+      Data: SQLite (history + memory) · ChromaDB (embeddings)
 ```
 
-## Table of contents
+Full detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/WEB_DASHBOARD.md`](docs/WEB_DASHBOARD.md)
 
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Screenshots](#screenshots)
-- [Installation](#installation)
-- [Environment variables](#environment-variables)
-- [Docker](#docker)
-- [Usage](#usage)
-  - [Telegram](#telegram)
-  - [Dashboard](#dashboard)
-- [Always-online mode](#always-online-mode-optional-free)
-- [Development](#development)
-- [Roadmap](#roadmap)
-- [FAQ](#faq)
-- [Contributing](#contributing)
-- [Security](#security)
-- [License](#license)
+---
 
-## Overview
+## 📸 Screenshots
 
-Most assistants can't see your files or run your commands. Kukku can, because it
-runs **on your machine** and is reachable **through Telegram** (which you already
-have on your phone) and a local **web dashboard**. It's private by design: your
-data stays local, and it works entirely on free LLM tiers (Gemini, Groq, or local
-Ollama) if you want zero cost.
+> _Screenshots live in `docs/images/`. Add your own (dark theme, 1440×900) and uncomment the grid below._
 
-The key idea: whether a message comes from Telegram or the dashboard, it runs
-through the **same agent**, writes to the **same SQLite database**, and is
-published to the **same realtime event bus** — so both clients stay in sync.
+<!--
+<div align="center">
+<img src="docs/images/dashboard-chat.png" width="49%" alt="AI Chat" />
+<img src="docs/images/dashboard-monitor.png" width="49%" alt="System Monitor" />
+<img src="docs/images/dashboard-search.png" width="49%" alt="Universal Search" />
+<img src="docs/images/mobile-drawer.png" width="49%" alt="Responsive on mobile" />
+</div>
+-->
 
-## Features
+---
 
-| | |
-|---|---|
-| 💬 **AI chat** | Tool-use agent with streaming replies, typing indicator, Markdown. Works with Claude (paid), **Gemini free tier**, **Groq free tier**, OpenRouter, or fully-local **Ollama** — all with full tool support. |
-| 🔍 **File search** | Desktop, Documents, Downloads, Pictures… — by filename (fuzzy), content, and **semantic similarity** (ChromaDB + sentence-transformers), merged and ranked with recency boost. |
-| 📄 **Formats** | PDF, Word, Excel, PowerPoint, TXT, Markdown, code (py/js/ts/…), JSON, images. |
-| 🖼 **OCR** | Screenshots and images are text-indexed via Tesseract — "find the screenshot where Docker failed" works. |
-| 🎙 **Voice** | Send a voice note; it's transcribed locally with Whisper (faster-whisper). English + Hindi auto-detected. |
-| 🇮🇳 **Hindi / Hinglish** | Ask in Hindi (देवनागरी), Hinglish (Romanized), or English — replies mirror your language and script. |
-| 📎 **File delivery** | Matching files are sent straight to your Telegram chat. |
-| 💻 **Local commands** | Open apps/folders, lock screen, sleep, shutdown, restart — allowlisted; destructive ones require confirmation. |
-| 🌐 **Web search** | Gemini Google-Search grounding (real, current results); DuckDuckGo fallback. |
-| ⏰ **Reminders** | "remind me at 5pm to call mom", "har roz 9 baje standup" — one-time + daily, pushed to you. **Zero LLM cost.** |
-| ⚠️ **Proactive alerts** | Warns about low battery / near-full disk before it's a problem. **Zero LLM cost.** |
-| 🌦 **Weather** | "delhi ka weather" — free via Open-Meteo, no key. |
-| 💾 **Auto-backup** | Daily consistent backup of the memory/history DB (keeps last 7). |
-| 🧠 **Memory** | Persistent notes, aliases ("my resume" → path), full conversation history in SQLite. |
-| 🔀 **Multi-provider** | Gemini → Groq → OpenRouter failover; auto-retry, cooldowns, health checks. |
-| 🔒 **Security** | Only your Telegram user ID is accepted; everything else is rejected and logged. Dashboard is Argon2 + JWT. |
-| 📊 **Dashboard** | Glassmorphism dark UI — AI chat, indexed files, searches, request logs, memory, CPU/RAM/disk, live sync. |
-| 👀 **Live indexing** | Watchdog re-indexes files the moment they change; periodic full rescans. |
-
-## Architecture
-
-Two clients, one backend, one database — no duplicated logic.
-
-```
-   📱 Telegram              🖥️  Web Dashboard (Next.js @ :3000)
-        │                            │
-        │ webhook                    │ login (JWT) · POST /api/chat (SSE)
-        ▼                            ▼
- ☁️  Cloudflare Worker + Durable Object (always-on relay, optional)
-        │ long-poll (outbound from Mac)
-        ▼
- 🐍  Python backend @ 127.0.0.1:8788  ── one source of truth ──
-        ├── FastAPI + Auth (Argon2 + JWT)
-        ├── Agent (shared brain)  ── EventBus (realtime sync) ─▶ both clients
-        ├── LLM failover:  Gemini → Groq → OpenRouter → Ollama
-        ├── Scheduler (reminders/alerts/backup) · Indexer (watchdog)
-        └── Data:  SQLite (history/memory)  +  ChromaDB (embeddings)
-```
-
-Full details, request traces, and design decisions are in
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and
-[docs/WEB_DASHBOARD.md](docs/WEB_DASHBOARD.md).
-
-## Screenshots
-
-> _Placeholder — add your own images under `docs/images/` and update the links._
-
-| Telegram | Dashboard — AI Chat | Dashboard — Monitor |
-|---|---|---|
-| _`docs/images/telegram.png`_ | _`docs/images/dashboard-chat.png`_ | _`docs/images/dashboard-monitor.png`_ |
-
-## Installation
-
-**Requirements:** macOS, Python 3.12+, and (for the dashboard) Node 20+.
-Optional: Tesseract (OCR), Ollama (local LLM).
+## 🚀 Quick Start
 
 ```bash
-git clone <your-fork-url> Kukku
+git clone https://github.com/manishsinghks/Kukku.git
 cd Kukku
-./scripts/start.sh          # creates venv + installs deps on first run
+./scripts/start.sh              # creates venv + installs deps on first run
+cp .env.example .env            # add a bot token + one free LLM key
 ```
 
-1. Copy the env template and fill it in: `cp .env.example .env`
-   - Set `TELEGRAM_BOT_TOKEN` (from [@BotFather](https://t.me/BotFather)) and
-     **one** LLM key. **100% free:** a Gemini key from
-     https://aistudio.google.com/apikey (no credit card) → `GEMINI_API_KEY`.
-2. Message your bot once — it replies with your numeric Telegram ID.
-3. Put that ID in `ALLOWED_USER_IDS`, restart. Done.
+1. Set `TELEGRAM_BOT_TOKEN` (from [@BotFather](https://t.me/BotFather)) and **one** LLM key — a free [Gemini key](https://aistudio.google.com/apikey) needs no card. (Full list of options: [Environment variables](#environment-variables).)
+2. Message your bot once → it replies with your Telegram ID → put it in `ALLOWED_USER_IDS`, restart.
+3. Dashboard: `./.venv/bin/python scripts/set_password.py` then `./scripts/web.sh` → **http://localhost:3000**
 
-Optional extras:
+Optional: `brew install tesseract` (OCR). Full guide: [`docs/INSTALL.md`](docs/INSTALL.md).
 
-```bash
-brew install tesseract      # OCR for screenshots/images
-```
-
-Run 24/7 (auto-start at login, auto-restart on crash) — see
-[docs/INSTALL.md](docs/INSTALL.md) for the launchd setup.
-
-Full guide: **[docs/INSTALL.md](docs/INSTALL.md)**.
+---
 
 ## Environment variables
 
@@ -164,16 +157,20 @@ commented template). You only need a bot token and **one** LLM key to start.
 **Secrets never belong in git.** `.env`, `data/`, and credentials are
 git-ignored — keep it that way.
 
+---
+
 ## Docker
 
 ```bash
 docker compose up -d
 ```
 
-The dashboard is published on `127.0.0.1:8788`, and the folders in
+The backend API is published on `127.0.0.1:8788`, and the folders in
 `docker-compose.yml` are mounted read-only. Note: on macOS a container **cannot**
 open apps or lock the screen and only sees the folders you mount — native
 (launchd) is the recommended way to run Kukku on a Mac.
+
+---
 
 ## Usage
 
@@ -195,7 +192,9 @@ Just talk to the bot. Try:
 Sign in and use AI Chat, Universal Search, Memory, File Explorer, OCR Search,
 Automation, Developer, System Monitor, Notifications, and Settings. Messages sent
 on Telegram appear in the dashboard live, and vice-versa. See
-[docs/WEB_DASHBOARD.md](docs/WEB_DASHBOARD.md).
+[`docs/WEB_DASHBOARD.md`](docs/WEB_DASHBOARD.md).
+
+---
 
 ## Always-online mode (optional, free)
 
@@ -208,6 +207,22 @@ deploy a free Cloudflare Worker relay (no credit card):
 
 Revert anytime with `./scripts/disable_cloud.sh`.
 
+---
+
+## 🆚 How it compares
+
+| | Kukku | ChatGPT | Cursor | Raycast | Telegram bots |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Runs locally / private | ✅ | ❌ | partial | ✅ | ❌ |
+| Sees your files (semantic) | ✅ | ❌ | code only | ❌ | ❌ |
+| OCR on screenshots | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Persistent memory | ✅ | partial | ❌ | ❌ | rare |
+| On your phone | ✅ | ✅ | ❌ | ❌ | ✅ |
+| Free to run | ✅ | ❌ | ❌ | partial | ✅ |
+| Open source | ✅ | ❌ | ❌ | ❌ | varies |
+
+---
+
 ## Development
 
 ```bash
@@ -217,34 +232,54 @@ Revert anytime with `./scripts/disable_cloud.sh`.
 cd web && npm install && npm run build   # dashboard build
 ```
 
-See [docs/EXTENDING.md](docs/EXTENDING.md) to add a new tool or module — a change
+See [`docs/EXTENDING.md`](docs/EXTENDING.md) to add a new tool or module — a change
 to the shared agent benefits both Telegram and the dashboard automatically.
 
-## Roadmap
+---
 
-Planned: ⌘K command palette, image vision in chat (Gemini multimodal), PWA
-(installable dashboard), settings write-through, and Calendar/Gmail modules.
-Full list in [docs/ROADMAP.md](docs/ROADMAP.md).
+## 🗺 Roadmap
 
-## FAQ
+- [ ] ⌘K command palette
+- [ ] Image vision in chat (Gemini multimodal)
+- [ ] PWA (installable dashboard)
+- [ ] Settings write-through from the UI
+- [ ] Calendar + Gmail modules
 
-Common questions (cost, privacy, "does it work when my Mac is asleep?", resetting
-the index) are answered in [docs/FAQ.md](docs/FAQ.md).
+Full list: [`docs/ROADMAP.md`](docs/ROADMAP.md) · Changes: [`CHANGELOG.md`](CHANGELOG.md)
 
-## Contributing
+---
 
-Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Please run the
-tests and linter before opening a PR.
+## ❓ FAQ
 
-## Security
+<details><summary><b>Is it really free?</b></summary>
+Yes — it runs on free LLM tiers (Gemini/Groq/OpenRouter) or fully-local Ollama. No subscription.
+</details>
+<details><summary><b>Where does my data go?</b></summary>
+Nowhere. The backend binds to <code>127.0.0.1</code>, data lives in a local SQLite + ChromaDB, and only your Telegram ID can talk to the bot.
+</details>
+<details><summary><b>Does it work when my Mac is asleep?</b></summary>
+With the optional free Cloudflare relay, the bot answers general questions while your Mac is off; file/command features resume when it wakes.
+</details>
+<details><summary><b>macOS only?</b></summary>
+Local commands and indexing are tuned for macOS today; the backend and dashboard are portable. Docker is supported.
+</details>
 
-Only your Telegram ID is accepted; the dashboard binds to `127.0.0.1` and uses
-Argon2 + JWT. Threat model, hardening checklist, and how to **report a
-vulnerability** are in [docs/SECURITY.md](docs/SECURITY.md).
+More in [`docs/FAQ.md`](docs/FAQ.md).
 
-## License
+---
 
-[MIT](LICENSE).
+## 🤝 Contributing & Security
+
+PRs welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md); please run the tests and
+linter first. Found a vulnerability? Report it privately per
+[`docs/SECURITY.md`](docs/SECURITY.md#reporting-a-vulnerability). Only your Telegram
+ID is accepted, and the dashboard binds to `127.0.0.1` with Argon2 + JWT.
+
+## 📄 License
+
+[MIT](LICENSE) — © Kukku contributors.
+
+---
 
 ## More docs
 
@@ -254,4 +289,8 @@ vulnerability** are in [docs/SECURITY.md](docs/SECURITY.md).
 [API reference](docs/API_REFERENCE.md) ·
 [Troubleshooting](docs/TROUBLESHOOTING.md) ·
 [Recovery](docs/RECOVERY.md) ·
-[Changelog](CHANGELOG.md)
+[CI](docs/CI.md) ·
+[Changelog](CHANGELOG.md) ·
+[Brand guide](docs/brand/BRAND_GUIDE.md)
+
+<div align="center"><br/><sub><b>Kukku</b> · Always on. Always yours.</sub></div>

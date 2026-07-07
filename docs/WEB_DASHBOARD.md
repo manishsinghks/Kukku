@@ -63,8 +63,8 @@ the same EventBus** — so both clients see it live. That's how "everything sync
 
 ### Getting in
 1. **Create your login** (once, on your Mac — password never leaves it):
-   `cd ~/jarvis && ./.venv/bin/python scripts/set_password.py`
-2. **Start it:** `~/jarvis/scripts/web.sh` → open **http://localhost:3000**
+   `cd ~/Kukku && ./.venv/bin/python scripts/set_password.py`
+2. **Start it:** `~/Kukku/scripts/web.sh` → open **http://localhost:3000**
 3. Sign in. Sessions use JWT (30-min access, auto-refreshed for 7 days).
 
 ### The modules
@@ -152,7 +152,7 @@ All under `http://127.0.0.1:8788`. Auth endpoints are open; everything else need
 | GET | `/api/activity` · `/api/logs/tail` | developer feed |
 | GET | `/api/settings` | config view |
 | GET | `/api/notifications` | alerts + recent |
-| GET | `/api/status` | system + provider metrics (open, for Monitor) |
+| GET | `/api/status` | system + provider metrics (authenticated, for Monitor) |
 
 See [API_REFERENCE.md](API_REFERENCE.md) for the agent tools and worker endpoints.
 
@@ -163,7 +163,7 @@ See [API_REFERENCE.md](API_REFERENCE.md) for the agent tools and worker endpoint
 ```mermaid
 timeline
     title Kukku OS — next
-    Now : 10 modules live : realtime sync : 3-provider failover : auth : 140 tests
+    Now : 10 modules live : realtime sync : 3-provider failover : auth : 161 tests
     Next : Settings write (edit provider order + folders from UI) : File preview pane : Voice input (Web Speech) in chat
     Then : Image vision in chat (Gemini multimodal) : Calendar + Gmail modules : Desktop/browser push notifications
     Later : Automation triggers ("when X do Y") : Multi-agent : Plugin marketplace : Offline AI mode
@@ -185,5 +185,5 @@ Each fits the existing shared-backend pattern — see [EXTENDING.md](EXTENDING.m
 
 ✅ Telegram · ✅ Dashboard · ✅ Login · ✅ AI Chat (both clients) · ✅ Hinglish ·
 ✅ Gemini · ✅ Groq · ✅ OpenRouter · ✅ auto failover · ✅ OCR · ✅ File Search ·
-✅ Memory · ✅ **Dashboard ↔ Telegram sync** · ✅ 140 tests pass · ✅ docs updated ·
+✅ Memory · ✅ **Dashboard ↔ Telegram sync** · ✅ 161 tests pass · ✅ docs updated ·
 ✅ no known critical bugs.

@@ -4,13 +4,13 @@
 
 - macOS (tested on Apple Silicon), Python 3.12+
 - A Telegram bot token — talk to [@BotFather](https://t.me/BotFather) → `/newbot`
-- An Anthropic API key — https://console.anthropic.com/ (or a local Ollama model as fallback)
+- **One** LLM key — a **free** Gemini key ([aistudio.google.com/apikey](https://aistudio.google.com/apikey), no card) or Groq is recommended; Anthropic (paid) and local Ollama also work
 - Optional: `brew install tesseract` (OCR), `brew install ffmpeg` (voice notes)
 
 ## 1. Install
 
 ```bash
-cd ~/jarvis
+cd ~/Kukku
 ./scripts/start.sh
 ```
 
@@ -45,7 +45,7 @@ Only **one** LLM variable is needed. Priority order if several are set: Claude �
 - Message your bot on Telegram → it replies with your user ID → paste it into
   `ALLOWED_USER_IDS` → restart.
 - The first full index runs in the background; semantic search gets better as
-  it fills. Watch progress at http://127.0.0.1:8788.
+  it fills. Watch progress in the dashboard (`./scripts/web.sh` → http://localhost:3000).
 - The first embedding model + whisper model downloads happen on first use.
 
 ## 4. Run 24/7 with launchd

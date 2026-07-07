@@ -19,7 +19,7 @@ flowchart TB
 
 The two commands you'll use most:
 ```bash
-tail -f ~/jarvis/data/logs/jarvis.log                       # watch the log live
+tail -f ~/Kukku/data/logs/jarvis.log                       # watch the log live
 launchctl kickstart -k gui/$(id -u)/com.manish.jarvis       # restart Kukku
 ```
 
@@ -31,7 +31,7 @@ launchctl kickstart -k gui/$(id -u)/com.manish.jarvis       # restart Kukku
 **Causes:** Kukku isn't running · relay/webhook broken · two instances conflict.
 **Fixes:**
 1. Confirm it's running: `launchctl list | grep jarvis` (should show a PID).
-2. Check the log for a crash: `tail -50 ~/jarvis/data/logs/jarvis.log`.
+2. Check the log for a crash: `tail -50 ~/Kukku/data/logs/jarvis.log`.
 3. Check the relay is alive: `curl https://jarvis-relay.<subdomain>.workers.dev/health`
    → `{"ok":true}`.
 4. Check the webhook: `curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"` —
@@ -124,7 +124,7 @@ awaiting confirmation.
 
 **Symptoms:** Dashboard Embeddings card says "off"; search only matches filenames.
 **Cause:** ChromaDB / sentence-transformers failed to load.
-**Fixes:** `cd ~/jarvis && ./.venv/bin/pip install -r requirements.txt`, then restart.
+**Fixes:** `cd ~/Kukku && ./.venv/bin/pip install -r requirements.txt`, then restart.
 **Logs:** `tail -50 data/logs/jarvis.log | grep -i vector`.
 
 ---
@@ -142,10 +142,11 @@ datetime(due_ts,'unixepoch','localtime') FROM reminders WHERE active=1;"`
 
 ## Problem 10 — Dashboard unreachable
 
-**Symptoms:** `http://127.0.0.1:8788` won't load.
-**Causes:** Kukku not running · port taken.
-**Fixes:** Confirm Kukku is up; change `DASHBOARD_PORT` in `.env` if 8788 is taken.
-Note: it's **local-only by design** — not reachable from other devices.
+**Symptoms:** The dashboard at `http://localhost:3000` won't load, or shows API errors.
+**Causes:** web app not started (`./scripts/web.sh`) · backend not running · port taken.
+**Fixes:** Start the web app with `./scripts/web.sh`; confirm the backend is up
+(it serves the API on `127.0.0.1:8788`); change `DASHBOARD_PORT` in `.env` if 8788
+is taken. Both are **local-only by design** — not reachable from other devices.
 
 ---
 
@@ -163,7 +164,7 @@ retry the install. (This is what happened installing Tesseract's dependencies.)
 **Symptoms:** No PID after a few seconds; `launchd.err.log` has a traceback.
 **Causes:** Bad `.env` value · missing dependency · corrupt DB.
 **Fixes:**
-1. Read the crash: `tail -30 ~/jarvis/data/logs/launchd.err.log`.
+1. Read the crash: `tail -30 ~/Kukku/data/logs/launchd.err.log`.
 2. Missing dep: `./.venv/bin/pip install -r requirements.txt`.
 3. Bad config: check `.env` against `.env.example`.
 4. Corrupt DB (rare): restore from `data/backups/` (see [RECOVERY.md](RECOVERY.md)).
@@ -190,7 +191,9 @@ nuclear reset, rotate credentials, and migrate to a new Mac.
 ## Health-check one-liner
 
 ```bash
-cd ~/jarvis && echo "PID:" && launchctl list | grep jarvis && \
-curl -s http://127.0.0.1:8788/api/status | python3 -c "import json,sys;d=json.load(sys.stdin);print('LLM:',d['llm']);print('files:',d['db']['files_indexed'],'vectors:',d['vector'].get('chunks'))" && \
+cd ~/Kukku && echo "PID:" && launchctl list | grep jarvis && \
+echo "backend:" && curl -s http://127.0.0.1:8788/api/auth/status && echo && \
 tail -3 data/logs/jarvis.log
 ```
+`/api/auth/status` is public and confirms the backend is up; every other endpoint
+requires a login token. For full status, log in to the dashboard's System Monitor.

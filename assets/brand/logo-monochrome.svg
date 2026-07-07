@@ -1,0 +1,10 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kukku">
+  <title>Kukku (monochrome)</title>
+  <!-- Single-colour mark: inherits currentColor. Stamp on any background. -->
+  <g stroke="currentColor" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M186 152 V372"/>
+    <path d="M186 262 L358 372"/>
+    <path d="M186 262 L316 186"/>
+  </g>
+  <circle cx="360" cy="152" r="30" fill="currentColor"/>
+</svg>

@@ -8,17 +8,17 @@ call), and the **Cloud Worker endpoints**.
 ## 1. Dashboard HTTP API
 
 Base URL: `http://127.0.0.1:8788` (local only). Interactive docs at `/api/docs`.
-Defined in `app/dashboard/api.py`.
+Defined in `app/dashboard/api.py`. The official dashboard UI is the Next.js app
+in `web/` (served on port 3000); this backend serves JSON only.
+
+**Authentication:** every data endpoint requires `Authorization: Bearer <access_token>`
+(from `/api/auth/login`). Only `/api/auth/*` is public. The full endpoint list is in
+[WEB_DASHBOARD.md](WEB_DASHBOARD.md#4-api-documentation-dashboard-endpoints); the two
+endpoints defined directly on the app (the rest live in authenticated routers):
 
 | Method | Path | Returns |
 |---|---|---|
-| GET | `/` | The dashboard HTML page |
 | GET | `/api/status` | Full snapshot: version, LLM, provider status, system stats, DB counts, vector stats, indexer state |
-| GET | `/api/files?limit=200&q=<text>` | Indexed files (optionally filtered by name) |
-| GET | `/api/files/stats` | File counts by status and type |
-| GET | `/api/searches?limit=100` | Recent search history |
-| GET | `/api/logs?limit=100` | Recent request log (audit trail) |
-| GET | `/api/memory` | `{memories: [...], aliases: [...]}` |
 | POST | `/api/reindex` | Triggers a full background rescan → `{"ok": true}` |
 
 ### `GET /api/status` (the important one)
@@ -40,10 +40,14 @@ Defined in `app/dashboard/api.py`.
 }
 ```
 
-Example:
+Example (all data endpoints need a token):
 ```bash
-curl -s http://127.0.0.1:8788/api/status | python3 -m json.tool
-curl -s -X POST http://127.0.0.1:8788/api/reindex
+TOKEN=$(curl -s -X POST http://127.0.0.1:8788/api/auth/login \
+  -H 'content-type: application/json' \
+  -d '{"username":"you","password":"your-password"}' | python3 -c 'import json,sys;print(json.load(sys.stdin)["access_token"])')
+
+curl -s http://127.0.0.1:8788/api/status -H "Authorization: Bearer $TOKEN" | python3 -m json.tool
+curl -s -X POST http://127.0.0.1:8788/api/reindex -H "Authorization: Bearer $TOKEN"
 ```
 
 ---

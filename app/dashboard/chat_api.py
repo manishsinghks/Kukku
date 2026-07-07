@@ -130,6 +130,10 @@ def build_chat_router(
         return StreamingResponse(stream(), media_type="text/event-stream")
 
     # -- memory CRUD ---------------------------------------------------------
+    @router.get("/memory")
+    def memory_list(_u: str = Depends(require_user)):
+        return {"memories": db.list_memories(), "aliases": db.list_aliases()}
+
     @router.post("/memory")
     def memory_add(body: MemoryBody, _u: str = Depends(require_user)):
         content = body.content.strip()

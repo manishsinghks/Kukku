@@ -10,7 +10,7 @@ Legend: 🟢 safe to edit · 🟡 edit carefully · 🔴 don't edit unless you d
 ## Top-level layout
 
 ```
-jarvis/
+Kukku/
 ├── app/                  # All the Python application code
 │   ├── main.py           # 🔴 Entry point — wires everything together
 │   ├── config.py         # 🟢 All settings (reads .env)
@@ -25,7 +25,7 @@ jarvis/
 │   ├── worker.js         # 🟡 The relay + Durable Object
 │   └── wrangler.toml     # 🟡 Worker config
 ├── scripts/              # Startup + deployment scripts
-├── tests/                # 106 automated tests
+├── tests/                # 161 automated tests
 ├── docs/                 # ← you are here
 ├── data/                 # 🔴 Runtime data (DB, embeddings, logs) — never commit
 ├── .env                  # 🔴 Your secrets (git-ignored)
@@ -192,10 +192,13 @@ foundation almost every module uses.
 
 | File | Emoji | Role |
 |---|---|---|
-| `api.py` | 🟢 | FastAPI JSON endpoints + serves the HTML |
-| `static/index.html` | 🟢 | The single-page dashboard UI (vanilla JS) |
+| `api.py` | 🟢 | FastAPI app factory: auth wiring, `/api/status`, `/api/reindex` |
+| `chat_api.py` | 🟢 | Authenticated chat / realtime (SSE) / memory / search router |
+| `modules_api.py` | 🟢 | Authenticated reminders / files / OCR / activity / settings router |
 
-Binds to `127.0.0.1:8788` (local only — on purpose, it exposes file paths).
+Binds to `127.0.0.1:8788` (local only — on purpose, it exposes file paths). Serves
+JSON only; every data endpoint requires a JWT. The dashboard **UI** is the Next.js
+app in `web/` (port 3000). The old vanilla-JS `static/` dashboard was retired.
 
 ---
 
@@ -273,7 +276,7 @@ by hand while Kukku is running — use the app or stop it first.
 | A new database table | `app/db/database.py` |
 | A new file type to index | `app/search/extractors.py` |
 | A new AI provider | `app/core/llm.py` |
-| A new dashboard panel | `app/dashboard/api.py` + `static/index.html` |
+| A new dashboard panel | authenticated router in `app/dashboard/` + a page in `web/app/(app)/` |
 | A new background job | `app/core/scheduler.py` |
 
 Full walkthroughs in [EXTENDING.md](EXTENDING.md).

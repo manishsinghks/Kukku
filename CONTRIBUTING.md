@@ -29,12 +29,13 @@ cd web && npm install && npm run dev      # http://localhost:3000
 
 ## Before you open a PR
 
-Run the full checks locally — they must be green:
+Run the full checks locally — they must be green. **These are the same checks
+[CI](docs/CI.md) runs on your PR**, so if they pass here, CI should be green too:
 
 ```bash
 ./.venv/bin/pytest                        # all tests must pass
 ./.venv/bin/ruff check app tests          # lint must be clean
-cd web && npm run build                   # dashboard must build (if you touched web/)
+cd web && npx tsc --noEmit && npm run build   # typecheck + build (if you touched web/)
 ```
 
 ## Coding conventions

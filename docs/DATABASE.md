@@ -183,7 +183,7 @@ At personal scale this is all comfortably small. See
 
 ```bash
 # open the DB
-sqlite3 ~/jarvis/data/jarvis.db
+sqlite3 ~/Kukku/data/jarvis.db
 
 # useful queries
 SELECT COUNT(*) FROM indexed_files WHERE status='indexed';

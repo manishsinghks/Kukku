@@ -86,7 +86,7 @@ Yes — the DB is backed up daily to `data/backups/` (last 7 kept). `.env` is *n
 in those backups — back it up separately.
 
 ### How many tests are there / how do I run them?
-106 tests. `cd ~/jarvis && ./.venv/bin/pytest -q`.
+161 tests. `cd ~/Kukku && ./.venv/bin/pytest -q`.
 
 ### Something's broken and I'm stuck.
 Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md), check `data/logs/jarvis.log`, and if

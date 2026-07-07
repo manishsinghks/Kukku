@@ -95,8 +95,8 @@ from the bridge.
 ### FastAPI + uvicorn
 **What:** FastAPI is a web framework for building APIs; uvicorn is the server that
 runs it.
-**Why chosen:** The dashboard needs a small JSON API + a static page. FastAPI is
-async (fits our event loop), fast, and needs almost no boilerplate.
+**Why chosen:** The dashboard needs a JSON API (consumed by the Next.js app in
+`web/`). FastAPI is async (fits our event loop), fast, and needs almost no boilerplate.
 **Pros:** Auto-generates API docs (`/api/docs`), type-validated, async.
 **Cons:** Overkill if you only ever need one endpoint (but we have several).
 **Where:** `app/dashboard/api.py`. Runs *inside the same event loop* as the bot.
@@ -348,7 +348,7 @@ macOS may prompt. You approve once in System Settings → Privacy & Security.
 
 | Tool | Purpose |
 |---|---|
-| **pytest** | The test runner (106 tests in `tests/`) |
+| **pytest** | The test runner (161 tests in `tests/`) |
 | **pytest-asyncio** | Lets tests run async code |
 | **ruff** | Linter + formatter (catches bugs and style issues fast) |
 | **httpx** | HTTP client (used for LLM calls, weather, tests' MockTransport) |

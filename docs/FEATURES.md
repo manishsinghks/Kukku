@@ -194,10 +194,11 @@ note. See [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 14. Admin Dashboard
 
-**What:** A local web page showing system status, indexed files, searches, logs,
-memory, and the active AI provider.
-**How you use it:** Open `http://127.0.0.1:8788` on the Mac.
-**Limitations:** Local-only (binds 127.0.0.1) because it exposes file paths.
+**What:** A local web dashboard (Next.js) showing AI chat, system status, indexed
+files, searches, logs, memory, and the active AI provider.
+**How you use it:** Start it with `./scripts/web.sh` and open `http://localhost:3000`
+on the Mac, then log in. It talks to the backend API on `127.0.0.1:8788`.
+**Limitations:** Local-only (backend binds 127.0.0.1) because it exposes file paths.
 
 ---
 

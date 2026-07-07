@@ -70,7 +70,7 @@ everything below.**
 | New file type to index | `extractors.py` | Add to `extract_text` dispatch |
 | New AI provider | `llm.py` | Add to `build_provider` |
 | New background job | `scheduler.py` | Add a loop + `create_task` |
-| New dashboard panel | `dashboard/api.py` + `static/index.html` | Add endpoint + JS |
+| New dashboard panel | authenticated router in `dashboard/` + page in `web/app/(app)/` | Add endpoint (behind `require_user`) + a Next.js page |
 
 ---
 
@@ -162,11 +162,11 @@ everything below.**
 Every new tool should have a test in `tests/`. The pattern (see existing tests):
 - **Mock external calls** with `httpx.MockTransport` (no real network in tests).
 - **Test the happy path + a failure path.**
-- Run `./.venv/bin/pytest -q` — all 106 existing tests + yours must pass.
+- Run `./.venv/bin/pytest -q` — all 161 existing tests + yours must pass.
 - Run `./.venv/bin/ruff check app tests` — must be clean.
 
 ```bash
-cd ~/jarvis
+cd ~/Kukku
 ./.venv/bin/pytest -q              # all tests
 ./.venv/bin/ruff check app tests   # lint
 launchctl kickstart -k gui/$(id -u)/com.manish.jarvis   # reload the service
