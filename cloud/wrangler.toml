@@ -1,0 +1,28 @@
+name = "jarvis-relay"
+main = "worker.js"
+compatibility_date = "2025-06-01"
+
+# Created by scripts/setup_cloud.sh (wrangler kv namespace create JARVIS_KV)
+kv_namespaces = [
+  { binding = "JARVIS_KV", id = "1c17bf21716b423ea3250f3faa9fe11e" }
+]
+
+# Real-time mailbox between the Telegram webhook and the Mac's long-poll.
+[[durable_objects.bindings]]
+name = "RELAY"
+class_name = "RelayDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RelayDO"]
+
+[vars]
+GEMINI_MODEL = "gemini-2.5-flash"
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Secrets (set via: npx wrangler secret put <NAME>):
+#   BOT_TOKEN         - Telegram bot token
+#   GEMINI_API_KEY    - Gemini key (free tier)
+#   BRIDGE_SECRET     - shared secret between Worker and the Mac
+#   WEBHOOK_SECRET    - secret Telegram sends with each webhook call
+#   ALLOWED_USER_IDS  - comma-separated Telegram user ids

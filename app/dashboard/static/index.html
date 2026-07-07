@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Kukku · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Dark OLED + AI purple system */
+    --bg:#06060b;
+    --surface:rgba(255,255,255,.045);
+    --surface-2:rgba(255,255,255,.07);
+    --border:rgba(255,255,255,.09);
+    --border-strong:rgba(255,255,255,.16);
+    --txt:#ececf4; --muted:#9a9ab3; --faint:#63637e;
+    --primary:#7C3AED; --primary-soft:#a78bfa;
+    --secondary:#6366F1; --accent:#EC4899;
+    --ok:#34d399; --warn:#fbbf24; --err:#fb7185;
+    --radius:16px; --radius-sm:10px;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px;
+    --font-ui:'Fira Sans',-apple-system,system-ui,sans-serif;
+    --font-data:'Fira Code',ui-monospace,'SF Mono',monospace;
+    --shadow-card:0 8px 28px rgba(0,0,0,.35);
+    --dur:200ms; --ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:dark}
+  body{
+    font:400 14px/1.55 var(--font-ui); color:var(--txt); min-height:100dvh;
+    background:
+      radial-gradient(900px 500px at 12% -8%, rgba(124,58,237,.16) 0%, transparent 60%),
+      radial-gradient(800px 460px at 105% 8%, rgba(99,102,241,.13) 0%, transparent 55%),
+      radial-gradient(700px 500px at 55% 115%, rgba(236,72,153,.07) 0%, transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+    padding:var(--space-5) clamp(14px,4vw,44px) 56px;
+  }
+  svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+  /* ---------- header ---------- */
+  header{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-5);flex-wrap:wrap}
+  .logo{
+    width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:#fff;
+    background:linear-gradient(135deg,var(--primary),var(--secondary) 55%,var(--accent));
+    box-shadow:0 0 22px rgba(124,58,237,.45), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .logo svg.i{width:22px;height:22px}
+  h1{font-size:19px;font-weight:600;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:12.5px;font-family:var(--font-data)}
+  .pill{
+    margin-left:auto;display:flex;gap:var(--space-2);align-items:center;padding:8px 14px;
+    border-radius:99px;background:var(--surface);border:1px solid var(--border);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    font-size:12px;font-family:var(--font-data);color:var(--muted)
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);position:relative}
+  .dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--ok);opacity:.5;animation:ping 2.4s var(--ease) infinite}
+  .dot.err{background:var(--err);box-shadow:0 0 10px var(--err)}
+  .dot.err::after{border-color:var(--err)}
+  @keyframes ping{0%{transform:scale(.6);opacity:.7}80%,100%{transform:scale(1.6);opacity:0}}
+
+  /* ---------- cards ---------- */
+  .grid{display:grid;gap:var(--space-4);grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:var(--space-4) var(--space-5);
+    backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);
+    box-shadow:var(--shadow-card);
+    transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+  .card:hover{transform:translateY(-2px);border-color:var(--border-strong)}
+  .card h3{
+    display:flex;align-items:center;gap:var(--space-2);
+    font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;
+    color:var(--muted);margin-bottom:var(--space-3)
+  }
+  .card h3 svg.i{width:15px;height:15px;color:var(--primary-soft)}
+
+  /* gauges */
+  .gauge-row{display:flex;align-items:center;gap:var(--space-4)}
+  .gauge{position:relative;width:84px;height:84px;flex:none}
+  .gauge svg{transform:rotate(-90deg)}
+  .gauge .track{stroke:rgba(255,255,255,.08)}
+  .gauge .fill{stroke:url(#ggrad);transition:stroke-dashoffset .7s var(--ease)}
+  .gauge .fill.hot{stroke:url(#ggrad-hot)}
+  .gauge .val{
+    position:absolute;inset:0;display:grid;place-items:center;
+    font:600 17px var(--font-data);font-variant-numeric:tabular-nums
+  }
+  .gauge-meta{min-width:0}
+  .gauge-meta .detail{font-family:var(--font-data);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .gauge-meta .hint{font-size:12px;color:var(--faint);margin-top:2px}
+
+  .big{font:600 30px/1.15 var(--font-data);font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .big .glow{text-shadow:0 0 12px rgba(167,139,250,.35)}
+  .subtext{font-size:12.5px;color:var(--muted);margin-top:var(--space-1);font-family:var(--font-data)}
+
+  /* ---------- tabs ---------- */
+  section{margin-top:var(--space-5)}
+  nav{display:flex;gap:var(--space-2);margin-bottom:var(--space-4);flex-wrap:wrap}
+  nav button{
+    display:flex;align-items:center;gap:7px;padding:9px 16px;min-height:38px;
+    border-radius:11px;border:1px solid var(--border);cursor:pointer;
+    background:var(--surface);color:var(--muted);font:500 13px var(--font-ui);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    transition:color var(--dur) var(--ease), background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+  nav button:hover{color:var(--txt);background:var(--surface-2)}
+  nav button.active{
+    color:#fff;border-color:rgba(124,58,237,.65);
+    background:linear-gradient(135deg,rgba(124,58,237,.32),rgba(99,102,241,.22));
+    box-shadow:0 0 16px rgba(124,58,237,.25), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  nav button svg.i{width:15px;height:15px}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{display:flex;gap:var(--space-3);margin-bottom:var(--space-4);align-items:center;flex-wrap:wrap}
+  .searchwrap{position:relative;flex:1;min-width:200px}
+  .searchwrap svg.i{position:absolute;left:13px;top:50%;translate:0 -50%;width:15px;height:15px;color:var(--faint);pointer-events:none}
+  input[type=search]{
+    width:100%;padding:10px 16px 10px 38px;min-height:40px;border-radius:11px;color:var(--txt);
+    background:var(--surface);border:1px solid var(--border);outline:none;
+    font:400 13.5px var(--font-ui);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    transition:border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  }
+  input[type=search]::placeholder{color:var(--faint)}
+  input[type=search]:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(124,58,237,.25)}
+  .btn{
+    display:flex;align-items:center;gap:7px;padding:10px 18px;min-height:40px;
+    border-radius:11px;border:none;cursor:pointer;font:600 13px var(--font-ui);color:#fff;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    box-shadow:0 4px 16px rgba(124,58,237,.35), inset 0 1px 0 rgba(255,255,255,.2);
+    transition:transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), opacity var(--dur) var(--ease);
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.45), inset 0 1px 0 rgba(255,255,255,.2)}
+  .btn:active{transform:translateY(0) scale(.98)}
+  .btn[disabled]{opacity:.55;cursor:default;transform:none}
+  .btn svg.i{width:15px;height:15px}
+  .btn.spinning svg.i{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* focus visibility (keyboard) */
+  :is(button,input,a):focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+  /* ---------- table ---------- */
+  .tablewrap{overflow-x:auto;border-radius:var(--radius-sm)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{
+    color:var(--faint);text-align:left;font:600 10.5px var(--font-ui);text-transform:uppercase;
+    letter-spacing:1.1px;padding:var(--space-2) var(--space-3);
+    border-bottom:1px solid var(--border);white-space:nowrap
+  }
+  td{
+    padding:9px var(--space-3);border-bottom:1px solid rgba(255,255,255,.045);
+    vertical-align:top;word-break:break-word
+  }
+  tbody tr{transition:background var(--dur) var(--ease)}
+  tbody tr:hover{background:rgba(255,255,255,.035)}
+  td.mono, .mono{font-family:var(--font-data);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  td.num{font-family:var(--font-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tag{
+    display:inline-flex;align-items:center;gap:5px;padding:2.5px 10px;border-radius:99px;
+    font:500 11px var(--font-ui);white-space:nowrap;
+    background:rgba(124,58,237,.16);color:var(--primary-soft);border:1px solid rgba(124,58,237,.25)
+  }
+  .tag.ok{background:rgba(52,211,153,.12);color:var(--ok);border-color:rgba(52,211,153,.25)}
+  .tag.err{background:rgba(251,113,133,.12);color:var(--err);border-color:rgba(251,113,133,.25)}
+  .tag.warn{background:rgba(251,191,36,.12);color:var(--warn);border-color:rgba(251,191,36,.25)}
+  .tag.neutral{background:rgba(255,255,255,.07);color:var(--muted);border-color:var(--border)}
+
+  .rows-anim tbody tr{animation:rise .3s var(--ease) both}
+  @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  h4.divider{
+    display:flex;align-items:center;gap:var(--space-2);
+    margin:var(--space-5) 0 var(--space-3);font:600 11px var(--font-ui);
+    text-transform:uppercase;letter-spacing:1.3px;color:var(--muted)
+  }
+  h4.divider:first-child{margin-top:0}
+  h4.divider svg.i{width:14px;height:14px;color:var(--primary-soft)}
+
+  /* ---------- empty / skeleton ---------- */
+  .empty{padding:44px 20px;text-align:center;color:var(--muted)}
+  .empty svg.i{width:30px;height:30px;color:var(--faint);margin-bottom:var(--space-3)}
+  .empty p{font-size:13.5px}
+  .empty small{color:var(--faint)}
+  .skel{display:grid;gap:10px;padding:6px 2px}
+  .skel div{
+    height:15px;border-radius:6px;
+    background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.11) 50%,rgba(255,255,255,.05) 75%);
+    background-size:200% 100%;animation:shimmer 1.3s linear infinite
+  }
+  .skel div:nth-child(2n){width:82%}.skel div:nth-child(3n){width:64%}
+  @keyframes shimmer{to{background-position:-200% 0}}
+
+  footer{margin-top:var(--space-6);text-align:center;color:var(--faint);font:400 11.5px var(--font-data)}
+
+  @media (max-width:640px){
+    body{padding:var(--space-4) var(--space-4) 48px}
+    .big{font-size:24px}
+    .gauge{width:72px;height:72px}
+    .pill{margin-left:0;width:100%;justify-content:center}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG defs: icon sprite (Lucide outlines) + gauge gradients -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="ggrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="ggrad-hot" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EC4899"/><stop offset="100%" stop-color="#fb7185"/>
+    </linearGradient>
+  </defs>
+  <symbol id="ic-bot" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/></symbol>
+  <symbol id="ic-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></symbol>
+  <symbol id="ic-ram" viewBox="0 0 24 24"><path d="M6 19v-3M10 19v-3M14 19v-3M18 19v-3M8 11V9M16 11V9M12 11V9"/><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M2 20h20"/></symbol>
+  <symbol id="ic-disk" viewBox="0 0 24 24"><line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/></symbol>
+  <symbol id="ic-files" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+  <symbol id="ic-sparkles" viewBox="0 0 24 24"><path d="M9.9 2.7a.7.7 0 0 1 1.3 0l1.4 3.9a.7.7 0 0 0 .4.4l3.9 1.4a.7.7 0 0 1 0 1.3l-3.9 1.4a.7.7 0 0 0-.4.4l-1.4 3.9a.7.7 0 0 1-1.3 0L8.5 11.5a.7.7 0 0 0-.4-.4L4.2 9.7a.7.7 0 0 1 0-1.3l3.9-1.4a.7.7 0 0 0 .4-.4z"/><path d="M18 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+  <symbol id="ic-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+  <symbol id="ic-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="ic-scroll" viewBox="0 0 24 24"><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="ic-brain" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+  <symbol id="ic-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+  <symbol id="ic-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+</svg>
+
+<header>
+  <div class="logo" role="img" aria-label="Kukku"><svg class="i"><use href="#ic-bot"/></svg></div>
+  <div>
+    <h1>Kukku Dashboard</h1>
+    <div class="sub" id="subline">connecting…</div>
+  </div>
+  <div class="pill"><span class="dot" id="livedot" aria-hidden="true"></span><span id="llm">–</span></div>
+</header>
+
+<div class="grid" aria-label="System statistics">
+  <div class="card">
+    <h3><svg class="i"><use href="#ic-cpu"/></svg>CPU</h3>
+    <div class="gauge-row">
+      <div class="gauge" id="g-cpu">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="7"/>
+          <circle class="fill" cx="42" cy="42" r="36" fill="none" stroke-width="7" stroke-linecap="round"
+                  stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+        </svg>
+        <span class="val">–</span>
+      </div>
+      <div class="gauge-meta"><div class="detail" id="cpuDetail">&nbsp;</div><div class="hint">processor load</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3><svg class="i"><use href="#ic-ram"/></svg>RAM</h3>
+    <div class="gauge-row">
+      <div class="gauge" id="g-ram">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="7"/>
+          <circle class="fill" cx="42" cy="42" r="36" fill="none" stroke-width="7" stroke-linecap="round"
+                  stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+        </svg>
+        <span class="val">–</span>
+      </div>
+      <div class="gauge-meta"><div class="detail" id="ramDetail">&nbsp;</div><div class="hint">memory in use</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3><svg class="i"><use href="#ic-disk"/></svg>Disk</h3>
+    <div class="gauge-row">
+      <div class="gauge" id="g-disk">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="7"/>
+          <circle class="fill" cx="42" cy="42" r="36" fill="none" stroke-width="7" stroke-linecap="round"
+                  stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+        </svg>
+        <span class="val">–</span>
+      </div>
+      <div class="gauge-meta"><div class="detail" id="diskDetail">&nbsp;</div><div class="hint">storage used</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3><svg class="i"><use href="#ic-files"/></svg>Indexed files</h3>
+    <div class="big glow" id="files">–</div>
+    <div class="subtext" id="chunks">&nbsp;</div>
+  </div>
+  <div class="card">
+    <h3><svg class="i"><use href="#ic-sparkles"/></svg>Embeddings</h3>
+    <div class="big glow" id="emb">–</div>
+    <div class="subtext" id="embModel">&nbsp;</div>
+  </div>
+  <div class="card">
+    <h3><svg class="i"><use href="#ic-activity"/></svg>Requests</h3>
+    <div class="big glow" id="reqs">–</div>
+    <div class="subtext" id="mems">&nbsp;</div>
+  </div>
+</div>
+
+<section>
+  <nav id="tabs" role="tablist" aria-label="Data views">
+    <button data-tab="files" class="active" role="tab" aria-selected="true"><svg class="i"><use href="#ic-folder"/></svg>Files</button>
+    <button data-tab="searches" role="tab" aria-selected="false"><svg class="i"><use href="#ic-search"/></svg>Searches</button>
+    <button data-tab="logs" role="tab" aria-selected="false"><svg class="i"><use href="#ic-scroll"/></svg>Logs</button>
+    <button data-tab="memory" role="tab" aria-selected="false"><svg class="i"><use href="#ic-brain"/></svg>Memory</button>
+  </nav>
+  <div class="card">
+    <div class="toolbar">
+      <div class="searchwrap">
+        <svg class="i"><use href="#ic-search"/></svg>
+        <input type="search" id="q" placeholder="Filter…" aria-label="Filter rows"/>
+      </div>
+      <button class="btn" id="reindex"><svg class="i"><use href="#ic-refresh"/></svg><span>Re-index</span></button>
+    </div>
+    <div id="content" aria-live="polite">
+      <div class="skel"><div></div><div></div><div></div><div></div><div></div></div>
+    </div>
+  </div>
+</section>
+
+<footer id="foot">kukku · local only</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+let tab = 'files', filter = '';
+
+const CIRC = 226.2; // 2πr for r=36
+const fmtSize = b => !b ? '' : b > 1e9 ? (b/1e9).toFixed(1)+' GB' : b > 1e6 ? (b/1e6).toFixed(1)+' MB' : Math.round(b/1e3)+' KB';
+const fmtTs = t => t ? new Date(t*1000).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+const esc = s => (s ?? '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function j(url){ const r = await fetch(url); if(!r.ok) throw new Error(r.status); return r.json(); }
+
+function setGauge(id, pct){
+  const g = $('#'+id);
+  const fill = g.querySelector('.fill');
+  fill.style.strokeDashoffset = (CIRC * (1 - Math.min(pct,100)/100)).toFixed(1);
+  fill.classList.toggle('hot', pct > 85);
+  g.querySelector('.val').textContent = Math.round(pct) + '%';
+}
+
+async function refreshStatus(){
+  try{
+    const s = await j('/api/status');
+    $('#livedot').classList.remove('err');
+    let llmLabel = s.llm;
+    if (s.providers) {
+      const names = Object.keys(s.providers);
+      const active = names.find(n => !s.providers[n].in_cooldown) || names[0];
+      const cooling = names.filter(n => s.providers[n].in_cooldown);
+      llmLabel = `active: ${active.split(' ')[0]}` +
+        (cooling.length ? ` · cooling: ${cooling.map(n => n.split(' ')[0]).join(', ')}` : ` · standby: ${names.filter(n => n !== active).map(n => n.split(' ')[0]).join(', ') || '—'}`);
+    }
+    $('#llm').textContent = llmLabel;
+    $('#llm').title = s.llm;
+    $('#subline').textContent = `v${s.version} · ${s.indexer.watched_dirs.length} dirs watched` +
+      (s.indexer.scanning ? ' · scanning…' : '') + (s.indexer.pending ? ` · ${s.indexer.pending} queued` : '');
+    const sys = s.system;
+    setGauge('g-cpu', sys.cpu_percent); setGauge('g-ram', sys.ram_percent); setGauge('g-disk', sys.disk_percent);
+    $('#cpuDetail').textContent = `${sys.cpu_count} cores`;
+    $('#ramDetail').textContent = `${sys.ram_used_gb} / ${sys.ram_total_gb} GB`;
+    $('#diskDetail').textContent = `${sys.disk_used_gb} / ${sys.disk_total_gb} GB`;
+    $('#files').textContent = s.db.files_indexed.toLocaleString();
+    $('#chunks').textContent = `${s.db.chunks.toLocaleString()} chunks`;
+    $('#emb').textContent = s.vector.available ? s.vector.chunks.toLocaleString() : 'off';
+    $('#embModel').textContent = s.vector.available ? (s.vector.model || '').split('/').pop() : (s.vector.reason || 'unavailable');
+    $('#reqs').textContent = s.db.requests.toLocaleString();
+    $('#mems').textContent = `${s.db.memories} memories · ${s.db.searches} searches`;
+    $('#foot').textContent = `kukku v${s.version} · 127.0.0.1 only · uptime ${Math.floor(s.system.uptime_s/60)}m`;
+  }catch(e){
+    $('#livedot').classList.add('err');
+    $('#subline').textContent = 'disconnected';
+  }
+}
+
+const icon = id => `<svg class="i" aria-hidden="true"><use href="#${id}"/></svg>`;
+
+function emptyState(msg, hint){
+  return `<div class="empty">${icon('ic-inbox')}<p>${msg}</p><small>${hint || ''}</small></div>`;
+}
+
+function table(headers, rows){
+  if(!rows.length) return emptyState('Nothing here yet.', 'Data appears as Kukku is used.');
+  return `<div class="tablewrap rows-anim"><table>
+    <thead><tr>${headers.map(h => `<th scope="col">${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map((r,i) => r.replace('<tr>', `<tr style="animation-delay:${Math.min(i*28,400)}ms">`)).join('')}</tbody>
+  </table></div>`;
+}
+
+const typeTag = t => `<span class="tag ${t === 'image' ? 'warn' : t === 'code' ? 'ok' : ''}">${esc(t || '?')}</span>`;
+
+const renderers = {
+  files: async () => {
+    const data = await j('/api/files?limit=400&q=' + encodeURIComponent(filter));
+    return table(['Name','Type','Size','Chunks','Status','Path'], data.map(f =>
+      `<tr><td>${esc(f.name)}</td><td>${typeTag(f.file_type)}</td>
+       <td class="num">${fmtSize(f.size)}</td><td class="num">${f.chunks || 0}</td>
+       <td>${f.status === 'indexed' ? '<span class="tag ok">indexed</span>' : `<span class="tag err">${esc(f.status)}</span>`}</td>
+       <td class="mono">${esc(f.path)}</td></tr>`));
+  },
+  searches: async () => {
+    const data = await j('/api/searches?limit=200');
+    const f = filter.toLowerCase();
+    return table(['Query','Type','Hits','Top result','When'], data
+      .filter(s => !f || s.query.toLowerCase().includes(f)).map(s =>
+      `<tr><td>${esc(s.query)}</td><td><span class="tag neutral">${esc(s.search_type)}</span></td>
+       <td class="num">${s.results_count}</td><td class="mono">${esc(s.top_result || '—')}</td>
+       <td class="mono">${fmtTs(s.ts)}</td></tr>`));
+  },
+  logs: async () => {
+    const data = await j('/api/logs?limit=200');
+    const f = filter.toLowerCase();
+    return table(['Kind','Request','Response','Time','When'], data
+      .filter(l => !f || (l.request || '').toLowerCase().includes(f)).map(l =>
+      `<tr><td><span class="tag ${l.kind === 'denied' ? 'err' : l.kind === 'voice' ? 'warn' : 'neutral'}">${esc(l.kind)}</span></td>
+       <td>${esc(l.request || '')}</td><td class="mono">${esc(l.response_summary || '')}</td>
+       <td class="num">${l.duration_ms ? l.duration_ms + ' ms' : '—'}</td><td class="mono">${fmtTs(l.ts)}</td></tr>`));
+  },
+  memory: async () => {
+    const m = await j('/api/memory');
+    const mems = m.memories.map(x => `<tr><td class="num">${x.id}</td><td>${esc(x.content)}</td><td class="mono">${fmtTs(x.ts)}</td></tr>`);
+    const al = m.aliases.map(a => `<tr><td>${esc(a.name)}</td><td class="mono">${esc(a.value)}</td><td class="mono">${fmtTs(a.ts)}</td></tr>`);
+    return `<h4 class="divider">${icon('ic-brain')}Memories</h4>` + table(['#','Content','Saved'], mems) +
+           `<h4 class="divider">${icon('ic-link')}Aliases</h4>` + table(['Name','Value','Saved'], al);
+  },
+};
+
+async function render(){
+  try{ $('#content').innerHTML = await renderers[tab](); }
+  catch(e){ $('#content').innerHTML = emptyState('Failed to load.', esc(e.message)); }
+}
+
+$('#tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('nav button').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+  b.classList.add('active'); b.setAttribute('aria-selected','true');
+  tab = b.dataset.tab; render();
+});
+
+let deb;
+$('#q').addEventListener('input', e => { clearTimeout(deb); deb = setTimeout(() => { filter = e.target.value; render(); }, 250); });
+
+$('#reindex').addEventListener('click', async e => {
+  const btn = e.currentTarget;
+  btn.disabled = true; btn.classList.add('spinning'); btn.querySelector('span').textContent = 'Indexing…';
+  try{ await fetch('/api/reindex', {method:'POST'}); }catch(_){}
+  setTimeout(() => { btn.disabled = false; btn.classList.remove('spinning'); btn.querySelector('span').textContent = 'Re-index'; }, 3000);
+});
+
+refreshStatus(); render();
+setInterval(refreshStatus, 5000);
+setInterval(() => { if(tab !== 'files' || !filter) render(); }, 15000);
+</script>
+</body>
+</html>

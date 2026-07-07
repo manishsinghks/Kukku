@@ -1,0 +1,17 @@
+services:
+  jarvis:
+    build: .
+    env_file: .env
+    environment:
+      DASHBOARD_HOST: 0.0.0.0
+      # inside the container, index the mounted host folders
+      INDEX_DIRS: /host/Desktop,/host/Documents,/host/Downloads,/host/Pictures
+    volumes:
+      - ./data:/jarvis/data
+      - ~/Desktop:/host/Desktop:ro
+      - ~/Documents:/host/Documents:ro
+      - ~/Downloads:/host/Downloads:ro
+      - ~/Pictures:/host/Pictures:ro
+    ports:
+      - "127.0.0.1:8788:8788"
+    restart: unless-stopped

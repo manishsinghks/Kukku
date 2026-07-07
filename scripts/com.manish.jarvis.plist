@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Run Kukku 24/7 via launchd.
+
+  Setup:
+    1. Replace every __KUKKU_DIR__ below with the ABSOLUTE path to your clone
+       (e.g. /Users/you/Kukku). A quick way:
+         sed "s#__KUKKU_DIR__#$(pwd)#g" scripts/com.manish.jarvis.plist \
+           > ~/Library/LaunchAgents/com.manish.jarvis.plist
+    2. Load it:
+         launchctl load ~/Library/LaunchAgents/com.manish.jarvis.plist
+    3. Stop with:
+         launchctl unload ~/Library/LaunchAgents/com.manish.jarvis.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.manish.jarvis</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__KUKKU_DIR__/scripts/start.sh</string>
+  </array>
+  <key>WorkingDirectory</key><string>__KUKKU_DIR__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>__KUKKU_DIR__/data/logs/launchd.out.log</string>
+  <key>StandardErrorPath</key><string>__KUKKU_DIR__/data/logs/launchd.err.log</string>
+</dict>
+</plist>
